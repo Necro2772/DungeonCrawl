@@ -10,6 +10,12 @@ public class Main {
 
         //map.createPathR(new Coord(0,0), new Coord(10,10));
         //map.createPath(0, 0, 10, 10);
+        if (map.pathExists(new Coord(0, 0), new Coord(25, 13))) {
+            map.pathExists(new Coord(0, 0), new Coord(25, 13));
+            map.makePath(map.pathTemp, new Coord(0, 0));
+        } else {
+            System.out.println("Could not create path.");
+        }
 
         map.displayMap();
     }
