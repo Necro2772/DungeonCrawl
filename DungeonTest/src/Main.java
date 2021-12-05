@@ -1,8 +1,17 @@
-import java.util.LinkedList;
+import java.awt.*;
+import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
         Map map = new Map(10, 5);
+        
+        JFrame frame = new JFrame("Dungeon Crawler");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setSize(200, 200);
+        frame.setVisible(true);
+
+        frame.getContentPane().add(new MapDisplay());
 
         //map.addRoom(5, 1, 5, 1);
         //addRoom(map, 3, 2, 3, 2);
@@ -17,8 +26,6 @@ public class Main {
 //        }
         //map.genCave();
         map.genMaze();
-
-
         map.displayMap();
     }
 }
