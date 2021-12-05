@@ -1,11 +1,154 @@
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 public class Map {
     int[][] map;
     LinkedList<Integer> pathTemp;
+    Hashtable<Integer, Character> key;
 
     public Map(int width, int height) {
         map = new int[height][width];
+        key = new Hashtable<>();
+        key.put(0, '#');
+        key.put(1, '#');
+        key.put(2, '.');
+    }
+
+    public void setMap(int[][] map2) {
+        for (int i = 0; i < map2.length; i++) {
+            System.arraycopy(map2[i], 0, map[i], 0, map[0].length);
+        }
+    }
+
+    //Growing Tree Algorithm, picks exposed squares at random
+    public void genMaze() {
+        LinkedList<Coord> exposed = new LinkedList<>();
+        map[0][0] = 2;
+        exposed.add(new Coord(1, 0));
+        exposed.add(new Coord(0, 1));
+        while(!exposed.isEmpty()) {
+            cut(exposed, (int)(Math.random() * exposed.size()));
+        }
+    }
+
+    public void cut(LinkedList<Coord> exposed, int current) {
+        int num = 0;
+        for (Coord adjacent : getAdjacent(exposed.get(current))) {
+            if (getValue(adjacent) == 2) {
+                num++;
+            }
+        }
+        if (num <= 1) {
+            setValue(exposed.get(current), 2);
+            for (Coord adjacent: getAdjacent(exposed.get(current))) {
+                if (getValue(adjacent) == 0) {
+                    exposed.add(adjacent);
+                }
+            }
+            exposed.remove(current);
+        } else {
+            setValue((exposed.get(current)), 1);
+            exposed.remove(current);
+        }
+    }
+
+    public LinkedList<Coord> getAdjacent(Coord current) {
+        LinkedList<Coord> list = new LinkedList<>();
+        for (int x : new int[]{-1, 1}) {
+            Coord temp = new Coord(current.x + x, current.y);
+            if (inBounds(temp)) {
+                list.add(temp);
+            }
+        }
+        for (int y : new int[]{-1, 1}) {
+            Coord temp = new Coord(current.x, current.y + y);
+            if (inBounds(temp)) {
+                list.add(temp);
+            }
+        }
+        return list;
+    }
+
+    public void genCave() {
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[0].length; x++) {
+                if (Math.random() < 0.40) {
+                    setValue(new Coord(x, y), 1);
+                } else {
+                    setValue(new Coord(x, y), 0);
+                }
+            }
+        }
+
+        int[][] tempMap = new int[map.length][map[0].length];
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[0].length; x++) {
+                tempMap[y][x] = 1;
+            }
+        }
+
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[0].length; x++) {
+                if (y == 0 || y == map.length - 1 || x == 0 || x == map[0].length - 1) {
+                    setValue(new Coord(x, y), 1);
+                }
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            displayMap();
+            for (int y = 1; y < map.length - 1; y++) {
+                for (int x = 1; x < map[0].length - 1; x++) {
+                    if (search2(new Coord(x, y), 1, 1) >= 5
+                            || search2(new Coord(x, y), 2, 1) <= 2) {
+                        tempMap[y][x] = 1;
+                    } else {
+                        tempMap[y][x] = 0;
+                    }
+                }
+            }
+            setMap(tempMap);
+        }
+
+        for (int i = 0; i < 3; i++) {
+            displayMap();
+            for (int y = 1; y < map.length - 1; y++) {
+                for (int x = 1; x < map[0].length - 1; x++) {
+                    if (search2(new Coord(x, y), 1, 1) >= 5) {
+                        tempMap[y][x] = 1;
+                    } else {
+                        tempMap[y][x] = 0;
+                    }
+                }
+            }
+            setMap(tempMap);
+        }
+
+    }
+
+    public int search2(Coord center, int dist, int search) {
+        int count = 0;
+        for (int y = center.y - dist; y < center.y + dist + 1; y++) {
+            for (int x = center.x - dist; x < center.x + dist + 1; x++) {
+                if (inBounds(new Coord(x, y)) && getValue(new Coord(x, y)) == search
+                        && !(Math.abs(y - center.y) == 2 && Math.abs(x - center.x) == 2)) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    public int searchArea(Coord start, Coord end, int search) {
+        int count = 0;
+        for (int y = start.y; y < end.y + 1; y++) {
+            for (int x = start.x; x < end.x + 1; x++) {
+                if (inBounds(new Coord(x, y)) && getValue(new Coord(x, y)) == search) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public void setValue(Coord coord, int value) {
@@ -14,6 +157,10 @@ public class Map {
 
     public int getValue(Coord coord) {
         return map[coord.y][coord.x];
+    }
+
+    public int getValue(int x, int y) {
+        return map[y][x];
     }
 
     public boolean inBounds(Coord coord) {
@@ -58,49 +205,49 @@ public class Map {
     }
 
     //Idea: breadth search, recursively get path, divide into rectangles, each one normally with current path/checking
-    public void createPathR(Coord p1, Coord p2) {
-        if (p1.equals(p2)) {
-            System.out.println("Done!");
-            return;
-        }
-        Coord temp;
-        LinkedList<Coord> coords = new LinkedList<>();
-        for (int x : new int[] {-1, 1}) {
-            temp = new Coord(p1.x+x, p1.y);
-            if (inBounds(temp) && pathExists(temp, p2)) {
-                coords.add(temp);
-            }
-        }
-        for (int y: new int[] {-1, 1}) {
-            temp = new Coord(p1.x, p1.y+y);
-            if (inBounds(temp) && pathExists(temp, p2)) {
-                coords.add(temp);
-            }
-        }
-        if(coords.isEmpty()) {
-            return;
-        }
-        Coord next = coords.get((int)(coords.size() * Math.random()));
-        for (int x : new int[] {-1, 1}) {
-            temp = new Coord(p1.x+x, p1.y);
-            if (inBounds(temp) && !new Coord(p1.x+x, next.y).equals(next)) {
-                if(getValue(temp) == 0) {
-                    setValue(new Coord(p1.x+x, p1.y), 1);
-                }
-            }
-        }
-        for (int y: new int[] {-1, 1}) {
-            temp = new Coord(p1.x, p1.y+y);
-            if (inBounds(temp) && !new Coord(p1.x, next.y+y).equals(next)) {
-                if (getValue(temp) == 0) {
-                    setValue(new Coord(p1.x, p1.y+y), 1);
-                }
-            }
-        }
-        setValue(next, 2);
-        displayMap();
-        createPathR(next, p2);
-    }
+//    public void createPathR(Coord p1, Coord p2) {
+//        if (p1.equals(p2)) {
+//            System.out.println("Done!");
+//            return;
+//        }
+//        Coord temp;
+//        LinkedList<Coord> coords = new LinkedList<>();
+//        for (int x : new int[] {-1, 1}) {
+//            temp = new Coord(p1.x+x, p1.y);
+//            if (inBounds(temp) && pathExists(temp, p2)) {
+//                coords.add(temp);
+//            }
+//        }
+//        for (int y: new int[] {-1, 1}) {
+//            temp = new Coord(p1.x, p1.y+y);
+//            if (inBounds(temp) && pathExists(temp, p2)) {
+//                coords.add(temp);
+//            }
+//        }
+//        if(coords.isEmpty()) {
+//            return;
+//        }
+//        Coord next = coords.get((int)(coords.size() * Math.random()));
+//        for (int x : new int[] {-1, 1}) {
+//            temp = new Coord(p1.x+x, p1.y);
+//            if (inBounds(temp) && !new Coord(p1.x+x, next.y).equals(next)) {
+//                if(getValue(temp) == 0) {
+//                    setValue(new Coord(p1.x+x, p1.y), 1);
+//                }
+//            }
+//        }
+//        for (int y: new int[] {-1, 1}) {
+//            temp = new Coord(p1.x, p1.y+y);
+//            if (inBounds(temp) && !new Coord(p1.x, next.y+y).equals(next)) {
+//                if (getValue(temp) == 0) {
+//                    setValue(new Coord(p1.x, p1.y+y), 1);
+//                }
+//            }
+//        }
+//        setValue(next, 2);
+//        displayMap();
+//        createPathR(next, p2);
+//    }
 
     public boolean pathExists(Coord p1, Coord p2) {
         if (getValue(p1) != 0) {
@@ -157,27 +304,6 @@ public class Map {
         if (index < found.size()) {
             pathExistsR(found.get(index), items, found, dir, index);
         }
-
-//        if (items.contains(new Coord(value.x-1, value.y)) && !found.contains(new Coord(value.x-1, value.y))) {
-//            found.add(new Coord(value.x-1, value.y));
-//            items.remove(new Coord(value.x-1, value.y));
-//            pathExistsR(new Coord(value.x-1, value.y), items, found);
-//        }
-//        if (items.contains(new Coord(value.x+1, value.y)) && !found.contains(new Coord(value.x+1, value.y))) {
-//            found.add(new Coord(value.x+1, value.y));
-//            items.remove(new Coord(value.x+1, value.y));
-//            pathExistsR(new Coord(value.x+1, value.y), items, found);
-//        }
-//        if (items.contains(new Coord(value.x, value.y-1)) && !found.contains(new Coord(value.x, value.y-1))) {
-//            found.add(new Coord(value.x, value.y-1));
-//            items.remove(new Coord(value.x, value.y-1));
-//            pathExistsR(new Coord(value.x, value.y-1), items, found);
-//        }
-//        if (items.contains(new Coord(value.x, value.y+1)) && !found.contains(new Coord(value.x, value.y+1))) {
-//            found.add(new Coord(value.x, value.y+1));
-//            items.remove(new Coord(value.x, value.y+1));
-//            pathExistsR(new Coord(value.x, value.y+1), items, found);
-//        }
     }
 
     public void findPathR(LinkedList<Coord> coords, LinkedList<Integer> dir, LinkedList<Integer> path) {
@@ -211,6 +337,7 @@ public class Map {
         findPathR(coords, dir, path);
     }
 
+    //For making paths: put paths on odd-numbered cells! prevents excessive merging (simple paths)
     public void makePath(LinkedList<Integer> path, Coord start) {
         int x = 0;
         int y = 0;
@@ -341,7 +468,11 @@ public class Map {
     public void displayMap() {
         for (int[] i : map){
             for (int j : i){
-                System.out.print(j);
+                if (key.containsKey(j)) {
+                    System.out.print(key.get(j));
+                } else {
+                    System.out.print(j);
+                }
             }
             System.out.println();
         }
