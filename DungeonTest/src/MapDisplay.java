@@ -3,27 +3,43 @@ import java.awt.Graphics;
 import javax.swing.*;
 
 public class MapDisplay extends JPanel {
-    private int squareX = 50;
-    private int squareY = 50;
-    private int squareW = 20;
-    private int squareH = 20;
+    int[][] map;
+    int width;
+    int height;
 
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.setColor(Color.red);
-        g.fillRect(squareX, squareY, squareW, squareH);
+    MapDisplay(int[][] m) {
+        map = m;
+        width = map[0].length * 10;
+        height = map.length * 10;
     }
 
-    // public MapDisplay(String string, Map map) {
-    //     JFrame frame = new JFrame(string);
-    //     JPanel panel = new JPanel();
-        
+    public void drawRoomSpace(Graphics g, int x, int y) {
+        g.setColor(Color.white);
+        g.drawRect(x, y, 10, 10);
+    }
 
-    //     frame.getContentPane().add(panel);
-        
-    //     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    //     frame.setLayout(new BorderLayout());
-    //     frame.setSize(800, 800);
-    //     frame.setVisible(true);
+    public void drawWallSpace(Graphics g, int x, int y) {
+        g.setColor(Color.black);
+        g.drawRect(x, y, 10, 10);
+    }
+
+    // protected void paintComponent(Graphics g) {
+    //     super.paintComponent(g);
+    //     g.setColor(Color.red);
     // }
+
+    // we're working on it
+    public void drawMap() {
+        for (int[] i : map){
+            for (int j : i){
+                // if (j == 2) {
+                //     System.out.print(key.get(j));
+                // } else {
+                //     System.out.print(j);
+                // }
+            }
+            // System.out.println();
+        }
+        // System.out.println();
+    }
 }
