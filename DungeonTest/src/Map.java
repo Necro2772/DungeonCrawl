@@ -204,6 +204,43 @@ public class Map {
         return 1;
     }
 
+    public int forceRoom(int minH, int incH, int minW, int incW) {
+        int height = minH + (int)Math.round(incH * Math.random()) * 2;
+        int width = minW + (int)Math.round(incW * Math.random()) * 2;
+        int locX = (int)(Math.random() * (map[0].length - width - 2) / 2) * 2 + 1;
+        int locY = (int)(Math.random() * (map.length - height - 2) / 2) * 2 + 1;
+//        for (int y = locY; y < locY + height; y++) {
+//            for (int x = locX; x < locX + width; x++) {
+//                if(map[y][x] != 0) {
+//                    return 0;
+//                }
+//            }
+//        }
+        for (int y = locY - 1; y < locY + height + 1; y++) {
+            for (int x = locX - 1; x < locX + width + 1; x++) {
+                map[y][x] = 2;
+                if (y == locY - 1 || y == locY + height || x == locX - 1 || x == locX + width) {
+                    map[y][x] = 1;
+                }
+            }
+        }
+        int numDoors = (int)(Math.random() * (width * height / 4) + 1);
+        for (int i = 0; i < numDoors; i++) {
+            switch ((int)(Math.random() * 4)) {
+                case 0: map[locY-1][(int)(Math.random()*width)+locX] = 2;
+                    break;
+                case 1: map[locY+height][(int)(Math.random()*width)+locX] = 2;
+                    break;
+                case 2: map[(int)(Math.random()*height)+locY][locX-1] = 2;
+                    break;
+                case 3: map[(int)(Math.random()*height)+locY][locX+width] = 2;
+                    break;
+                default: break;
+            }
+        }
+        return 1;
+    }
+
     //Idea: breadth search, recursively get path, divide into rectangles, each one normally with current path/checking
 //    public void createPathR(Coord p1, Coord p2) {
 //        if (p1.equals(p2)) {
