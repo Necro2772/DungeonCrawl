@@ -894,6 +894,10 @@ public class Map {
 //        }
 //    }
 
+    public int[][] getMap() {
+        return map;
+    }
+
     public void displayMap() {
         for (int[] i : map){
             for (int j : i){
