@@ -10,8 +10,9 @@ public class Map {
     private static final int OPEN = 2;
     private static final int DOOR = 3;
     private static final int WALL = 0;
+    private static final int TEST = 1;
 
-    private class Room {
+    private static class Room {
         public Coord start;
         public int width;
         public int height;
@@ -101,7 +102,7 @@ public class Map {
         rooms = new LinkedList<>();
         key = new Hashtable<>();
         key.put(0, '#');
-        key.put(1, '-');
+        key.put(1, '!');
         key.put(2, ' ');
         key.put(3, '|');
     }
@@ -246,10 +247,11 @@ public class Map {
     }
 
     public void connectRooms(Room room1, Room room2) {
-        // TODO: Remove display
-        setValue(room1.inner.start, 5);
+        // TODO: Remove iterative display
+        // TODO: check location of doors compared to existing doors to avoid pathing conflicts
+        setValue(room1.inner.start, TEST);
         setValue(room2.inner.start, 5);
-        //displayMap();
+        displayMap();
         setValue(room1.inner.start, WALL);
         setValue(room2.inner.start, WALL);
         //System.out.println("Connecting " + room1 + " to " + room2);
@@ -278,17 +280,23 @@ public class Map {
         boolean corner = false;
         int index1 = (int)(Math.random() * spaces1.size());
         int index2 = (int)(Math.random() * spaces2.size());
+        Coord door1, door2;
 
         if (spaces1.isEmpty() || spaces2.isEmpty()) {
             corner = true;
         } else {
-            Coord door1 = spaces1.get(index1);
+            door1 = spaces1.get(index1);
             if (room1.disOnSide(dir1) + room2.disOnSide(dir2) < 3) {
                 door1.moveInDir(dir1);
                 if (getValue(door1) == OPEN) {
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
                     return;
+                } else if (getValue(door1.itemInDir((dir1 + 1) % 4)) == OPEN || getValue(door1.itemInDir((dir1 + 3) % 4)) == OPEN) {
+                    setValue(door1, DOOR);
+                    door1.moveInDir(dir2);
+                    setValue(door1, DOOR);
+                    return;
                 }
                 door1.moveInDir(dir1);
                 if (getValue(door1) == OPEN) {
@@ -297,21 +305,149 @@ public class Map {
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
                     return;
+                } else if (getValue(door1.itemInDir((dir1 + 1) % 4)) == OPEN || getValue(door1.itemInDir((dir1 + 3) % 4)) == OPEN) {
+                    displayMap();
+                    setValue(door1, DOOR);
+                    door1.moveInDir(dir2);
+                    setValue(door1, OPEN);
+                    door1.moveInDir(dir2);
+                    setValue(door1, DOOR);
+                    System.out.println("check");
+                    displayMap();
+                    return;
                 }
+                door1.moveInDir(dir2);
+                door1.moveInDir(dir2);
                 corner = true;
             }
         }
 
         // Corner connection if necessary
         if (corner) {
-            // TODO: add corner connection and checks
-            // Clear out space for one entrance on wall, then find a point in that direction and make two straight paths
+            if (!(spaces1.isEmpty() && spaces2.isEmpty())) {
+                // Only one failed, can create corner connection
+                if (!spaces1.isEmpty()) {
+                    door1 = spaces1.get(index1);
+                    if (dir1 == 1 || dir1 == 3) {
+                        if (room2.inner.start.y < door1.y) {
+                            dir2 = 0;
+                        } else {
+                            dir2 = 2;
+                        }
+                    } else {
+                        if (room2.inner.start.x > door1.x) {
+                            dir2 = 1;
+                        } else {
+                            dir2 = 3;
+                        }
+                    }
+                    dir2 = (dir2 + 2) % 4;
+                    spaces2 = room2.inner.createDoorList(dir2);
+
+                    Coord finalDoor = door1;
+                    assert spaces2 != null;
+                    spaces2.removeIf(space -> space.x == finalDoor.x || space.y == finalDoor.y);
+
+                    if (spaces2.isEmpty()) {
+                        spaces2 = room2.inner.createDoorList(dir2);
+                        assert spaces2 != null;
+                        door2 = spaces2.getFirst();
+                        if (spaces2.getFirst().y == spaces2.getLast().y) {
+                            if (door1.x > door2.x) {
+                                door2 = spaces2.getLast();
+                            }
+                        } else {
+                            if (door1.y > door2.y) {
+                                door2 = spaces2.getLast();
+                            }
+                        }
+                    } else {
+                        index2 = (int)(Math.random() * spaces2.size());
+                        door2 = spaces2.get(index2);
+                    }
+                } else {
+                    door2 = spaces2.get(index2);
+                    if (dir2 == 1 || dir2 == 3) {
+                        if (room1.inner.start.y < door2.y) {
+                            dir1 = 0;
+                        } else {
+                            dir1 = 2;
+                        }
+                    } else {
+                        if (room1.inner.start.x > door2.x) {
+                            dir1 = 1;
+                        } else {
+                            dir1 = 3;
+                        }
+                    }
+                    dir1 = (dir1 + 2) % 4;
+                    spaces1 = room1.inner.createDoorList(dir1);
+
+                    Coord finalDoor = door2;
+                    assert spaces1 != null;
+                    spaces1.removeIf(space -> space.x == finalDoor.x || space.y == finalDoor.y);
+                    if (spaces1.isEmpty()) {
+                        spaces1 = room1.inner.createDoorList(dir1);
+                        assert spaces1 != null;
+                        door1 = spaces1.getFirst();
+                        if (spaces1.getFirst().y == spaces1.getLast().y) {
+                            if (door2.x > door1.x) {
+                                door1 = spaces1.getLast();
+                            }
+                        } else {
+                            if (door2.y > door1.y) {
+                                door1 = spaces1.getLast();
+                            }
+                        }
+                    } else {
+                        index1 = (int)(Math.random() * spaces1.size());
+                        door1 = spaces1.get(index1);
+                    }
+
+                }
+                setValue(door1, DOOR);
+                setValue(door2, DOOR);
+                if (door1.x != door2.x && door1.y != door2.y) {
+                    while (door1.x != door2.x && door1.y != door2.y && validPoint(door1)) {
+                        door1.moveInDir(dir1);
+                        if (validPoint(door1)) {
+                            setValue(door1, OPEN);
+                        }
+                    }
+                    while ((door1.x != door2.x || door1.y != door2.y) && validPoint(door2)) {
+                        door2.moveInDir(dir2);
+                        if (validPoint(door2)) {
+                            setValue(door2, OPEN);
+                        }
+                    }
+                } else {
+                    if ((door1.x == door2.x && (dir1 == 2 || dir1 == 0)) || (door1.y == door2.y && (dir1 == 1 || dir1 == 3))) {
+                        while ((door1.x != door2.x || door1.y != door2.y) && validPoint(door1)) {
+                            door1.moveInDir(dir1);
+                            if (validPoint(door1)) {
+                                setValue(door1, OPEN);
+                            }
+                        }
+                    } else {
+                        while ((door1.x != door2.x || door1.y != door2.y) && validPoint(door2)) {
+                            door2.moveInDir(dir2);
+                            if (validPoint(door2)) {
+                                setValue(door2, OPEN);
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+            System.out.println("Creating joint connection...");
+            // TODO: Add joint connection
+            //Otherwise both fail, and must create two corner connections through valid area
             return;
         }
 
         // Direct connection
-        Coord door1 = spaces1.get(index1);
-        Coord door2 = spaces2.get(index2);
+        door1 = spaces1.get(index1);
+        door2 = spaces2.get(index2);
 
         setValue(door1, DOOR);
         setValue(door2, DOOR);
@@ -641,6 +777,9 @@ public class Map {
 //    }
 
     public boolean validPoint(Coord location, int... invalid) {
+        if (location.x < 0 || location.x >= map[0].length || location.y < 0 || location.y >= map.length) {
+            return false;
+        }
         for (int item : invalid) {
             if (getValue(location) == item) {
                 return false;

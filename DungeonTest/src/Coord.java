@@ -12,6 +12,22 @@ public class Coord {
         this.y = other.y;
     }
 
+    public Coord itemInDir(int dir) {
+        switch (dir) {
+            case 0:
+                return new Coord(x, y - 1);
+            case 1:
+                return new Coord(x + 1, y);
+            case 2:
+                return new Coord(x, y + 1);
+            case 3:
+                return new Coord(x - 1, y);
+            default:
+                System.err.println("Cannot move coord!");
+                return null;
+        }
+    }
+
     public void moveInDir(int dir) {
         switch (dir) {
             case 0:
