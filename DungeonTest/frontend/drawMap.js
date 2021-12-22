@@ -13,6 +13,10 @@ const test = {
     ],
 }
 
+function generateMap() {
+    drawMap();
+}
+
 function drawMap() {
     let map = '<div id="map">';
 

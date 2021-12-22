@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+
         <link rel=stylesheet href="index.css" />
+        
         <title>Dungeon Crawl</title>
     </head>
     <body>
         <h1>Dungeon Crawler</h1>
-        <button type="button" onclick="drawMap()" >Map Time!</button>
 
         <main>
             <div id="map-outer"></div>
         </main>
 
-        <script src="drawMap.js"></script>
+        <button type="button" onclick="generateMap()" >Generate New Map</button>
+
+        <script type="text/javascript" src="drawMap.js"></script>
+        <script>
+            window.onload = generateMap;
+        </script>
     </body>
 </html>
