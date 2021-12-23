@@ -1,3 +1,6 @@
+const canvas = document.getElementById("map-canvas");
+const context = canvas.getContext("2d");
+
 function generateMap() {
     const test = 'http://localhost:3001/testMap.json'
 
@@ -7,27 +10,50 @@ function generateMap() {
 }
 
 function drawMap(m) {
-    let map = '<div id="map">';
+    canvas.width = (m[0].length + 2) * 20;
+    canvas.height = (m.length + 2) * 20;
 
-    for (let i = 0; i < m.length; i++) {
-        map = map.concat('<div class="row">');
+    let size = 20;
+    let padding = size;
 
-        for (let j = 0; j < m[0].length; j++) {
-            if (m[i][j] === 0) {
-                map = map.concat('<div class="cell wall"></div>');
-            }
-            else if (m[i][j] === 3) {
-                map = map.concat('<div class="cell door"></div>');
-            }
-            else {
-                map = map.concat('<div class="cell open"></div>');
-            }
-        }
+    context.beginPath();
 
-        map = map.concat('</div>');
+    for (let x = padding; x <= canvas.width - padding; x += size) {
+        context.moveTo(x, padding);
+        context.lineTo(x, canvas.height - padding);
     }
 
-    map = map.concat('</div>');
+    for (let y = padding; y <= canvas.height - padding; y += size) {
+        context.moveTo(padding, y);
+        context.lineTo(canvas.width - padding, y);
+    }
 
-    document.getElementById("map-outer").innerHTML = map;
+    context.strokeStyle = "#253652";
+    context.stroke();
 }
+
+// function drawMap(m) {
+//     let map = '<div id="map">';
+
+//     for (let i = 0; i < m.length; i++) {
+//         map = map.concat('<div class="row">');
+
+//         for (let j = 0; j < m[0].length; j++) {
+//             if (m[i][j] === 0) {
+//                 map = map.concat('<div class="cell wall"></div>');
+//             }
+//             else if (m[i][j] === 3) {
+//                 map = map.concat('<div class="cell door"></div>');
+//             }
+//             else {
+//                 map = map.concat('<div class="cell open"></div>');
+//             }
+//         }
+
+//         map = map.concat('</div>');
+//     }
+
+//     map = map.concat('</div>');
+
+//     document.getElementById("map-outer").innerHTML = map;
+// }
