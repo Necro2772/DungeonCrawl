@@ -12,6 +12,8 @@ public class Map {
     private static final int WALL = 0;
     private static final int TEST = 1;
 
+    public int test = 0;
+
     private static class Room {
         public Coord start;
         public int width;
@@ -221,11 +223,11 @@ public class Map {
 
     public boolean roomsAreAdjacent(Room room1, Room room2) {
         if (room1.start.x + room1.width - 1 == room2.start.x - 2 || room1.start.x == room2.start.x + room2.width + 1) {
-            return room1.start.y >= room2.start.y && room1.start.y < room2.start.y + room2.height
-                    || room2.start.y >= room1.start.y && room2.start.y < room1.start.y + room1.height;
+            return room1.start.y >= room2.start.y && room1.start.y < room2.start.y + room2.height - 1
+                    || room2.start.y >= room1.start.y && room2.start.y < room1.start.y + room1.height - 1;
         } else if (room1.start.y + room1.height - 1 == room2.start.y - 2 || room1.start.y == room2.start.y + room2.height + 1) {
-            return room1.start.x >= room2.start.x && room1.start.x < room2.start.x + room2.width
-                    || room2.start.x >= room1.start.x && room2.start.x < room1.start.x + room1.width;
+            return room1.start.x >= room2.start.x && room1.start.x < room2.start.x + room2.width - 1
+                    || room2.start.x >= room1.start.x && room2.start.x < room1.start.x + room1.width - 1;
         }
         return false;
     }
@@ -249,12 +251,13 @@ public class Map {
     public void connectRooms(Room room1, Room room2) {
         // TODO: Remove iterative display
         // TODO: check location of doors compared to existing doors to avoid pathing conflicts
-        setValue(room1.inner.start, TEST);
-        setValue(room2.inner.start, 5);
-        displayMap();
-        setValue(room1.inner.start, WALL);
-        setValue(room2.inner.start, WALL);
-        //System.out.println("Connecting " + room1 + " to " + room2);
+//        int temp1 = getValue(room1.inner.start);
+//        int temp2 = getValue(room2.inner.start);
+//        setValue(room1.inner.start, TEST);
+//        setValue(room2.inner.start, 5);
+//        displayMap();
+//        setValue(room1.inner.start, temp1);
+//        setValue(room2.inner.start, temp2);
         // Pick adjacent wall, connect points on that wall
         int dir1 = wallOfAdjacentRooms(room1, room2);
         int dir2 = (dir1 + 2) % 4;
@@ -265,6 +268,7 @@ public class Map {
             return;
         }
 
+        //Remove invalid spaces on wall to not connect through other rooms
         if (dir1 == 1 || dir1 == 3) {
             spaces1.removeIf(space -> space.y < Math.max(room1.start.y, room2.start.y)
                             || space.y > Math.min(room1.start.y + room1.height - 1, room2.start.y + room2.height - 1));
@@ -282,6 +286,7 @@ public class Map {
         int index2 = (int)(Math.random() * spaces2.size());
         Coord door1, door2;
 
+        // Check for corner connection or short connection
         if (spaces1.isEmpty() || spaces2.isEmpty()) {
             corner = true;
         } else {
@@ -312,8 +317,6 @@ public class Map {
                     setValue(door1, OPEN);
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
-                    System.out.println("check");
-                    displayMap();
                     return;
                 }
                 door1.moveInDir(dir2);
@@ -326,7 +329,7 @@ public class Map {
         if (corner) {
             if (!(spaces1.isEmpty() && spaces2.isEmpty())) {
                 // Only one failed, can create corner connection
-                if (!spaces1.isEmpty()) {
+                if (!spaces1.isEmpty()) { // Start from room 1
                     door1 = spaces1.get(index1);
                     if (dir1 == 1 || dir1 == 3) {
                         if (room2.inner.start.y < door1.y) {
@@ -348,11 +351,11 @@ public class Map {
                     assert spaces2 != null;
                     spaces2.removeIf(space -> space.x == finalDoor.x || space.y == finalDoor.y);
 
-                    if (spaces2.isEmpty()) {
+                    if (spaces2.isEmpty()) { // both doors are on same x or y axis
                         spaces2 = room2.inner.createDoorList(dir2);
                         assert spaces2 != null;
                         door2 = spaces2.getFirst();
-                        if (spaces2.getFirst().y == spaces2.getLast().y) {
+                        if (spaces2.getFirst().y == spaces2.getLast().y) { // Try to select closest option
                             if (door1.x > door2.x) {
                                 door2 = spaces2.getLast();
                             }
@@ -365,7 +368,7 @@ public class Map {
                         index2 = (int)(Math.random() * spaces2.size());
                         door2 = spaces2.get(index2);
                     }
-                } else {
+                } else { // Start from room 2
                     door2 = spaces2.get(index2);
                     if (dir2 == 1 || dir2 == 3) {
                         if (room1.inner.start.y < door2.y) {
@@ -386,11 +389,11 @@ public class Map {
                     Coord finalDoor = door2;
                     assert spaces1 != null;
                     spaces1.removeIf(space -> space.x == finalDoor.x || space.y == finalDoor.y);
-                    if (spaces1.isEmpty()) {
+                    if (spaces1.isEmpty()) { // both doors are on same x or y axis
                         spaces1 = room1.inner.createDoorList(dir1);
                         assert spaces1 != null;
                         door1 = spaces1.getFirst();
-                        if (spaces1.getFirst().y == spaces1.getLast().y) {
+                        if (spaces1.getFirst().y == spaces1.getLast().y) { // Try to select closest option
                             if (door2.x > door1.x) {
                                 door1 = spaces1.getLast();
                             }
@@ -405,43 +408,78 @@ public class Map {
                     }
 
                 }
+                // corner connection
                 setValue(door1, DOOR);
                 setValue(door2, DOOR);
-                if (door1.x != door2.x && door1.y != door2.y) {
-                    while (door1.x != door2.x && door1.y != door2.y && validPoint(door1)) {
-                        door1.moveInDir(dir1);
-                        if (validPoint(door1)) {
-                            setValue(door1, OPEN);
-                        }
-                    }
-                    while ((door1.x != door2.x || door1.y != door2.y) && validPoint(door2)) {
-                        door2.moveInDir(dir2);
-                        if (validPoint(door2)) {
-                            setValue(door2, OPEN);
-                        }
-                    }
-                } else {
-                    if ((door1.x == door2.x && (dir1 == 2 || dir1 == 0)) || (door1.y == door2.y && (dir1 == 1 || dir1 == 3))) {
-                        while ((door1.x != door2.x || door1.y != door2.y) && validPoint(door1)) {
-                            door1.moveInDir(dir1);
-                            if (validPoint(door1)) {
-                                setValue(door1, OPEN);
-                            }
-                        }
-                    } else {
-                        while ((door1.x != door2.x || door1.y != door2.y) && validPoint(door2)) {
-                            door2.moveInDir(dir2);
-                            if (validPoint(door2)) {
-                                setValue(door2, OPEN);
-                            }
-                        }
-                    }
-                }
+                cornerConnect(door1, door2, dir1, dir2);
                 return;
             }
-            System.out.println("Creating joint connection...");
-            // TODO: Add joint connection
-            //Otherwise both fail, and must create two corner connections through valid area
+            int dirMid = dir2;
+            if (dir1 == 1 || dir1 == 3) {
+                if (room1.inner.start.y > room2.inner.start.y) {
+                    dir1 = 0;
+                    dir2 = 2;
+                } else {
+                    dir1 = 2;
+                    dir2 = 0;
+                }
+            } else {
+                if (room1.inner.start.x > room2.inner.start.x) {
+                    dir1 = 3;
+                    dir2 = 1;
+                } else {
+                    dir1 = 1;
+                    dir2 = 3;
+                }
+            }
+            spaces1 = room1.inner.createDoorList(dir1);
+            spaces2 = room2.inner.createDoorList(dir2);
+            Coord mid;
+
+            LinkedList<Coord> spacesMid = room1.createDoorList((dirMid + 2) % 4);
+            LinkedList<Coord> spacesTemp = room2.createDoorList(dirMid);
+            assert spacesMid != null;
+            assert spacesTemp != null;
+            assert spaces1 != null;
+            assert spaces2 != null;
+            System.out.println(spacesMid + " " + spacesTemp);
+            spacesMid.removeIf(space -> !spacesTemp.contains(space.itemInDir((dirMid + 2) % 4)));
+            if (spacesMid.isEmpty()) {
+                System.err.println("Cannot find spaces for joint connection!");
+            }
+            mid = spacesMid.get((int)(Math.random() * spacesMid.size()));
+            System.out.println(mid);
+            door1 = spaces1.get((int)(Math.random() * spaces1.size()));
+            door2 = spaces2.get((int)(Math.random() * spaces2.size()));
+
+            if (door1.x == mid.x || door1.y == mid.y) { // Door 1 and mid share x or y
+                door1 = spaces1.getFirst();
+                if (spaces1.getFirst().y == spaces1.getLast().y) { // Try to select closest option
+                    if (mid.x > door1.x) {
+                        door1 = spaces1.getLast();
+                    }
+                } else {
+                    if (mid.y > door1.y) {
+                        door1 = spaces1.getLast();
+                    }
+                }
+            }
+            if (door2.x == mid.x || door2.y == mid.y) { // Door 2 and mid share x or y
+                door2 = spaces2.getFirst();
+                if (spaces2.getFirst().y == spaces2.getLast().y) { // Try to select closest option
+                    if (mid.x > door2.x) {
+                        door2 = spaces2.getLast();
+                    }
+                } else {
+                    if (mid.y > door2.y) {
+                        door2 = spaces2.getLast();
+                    }
+                }
+            }
+            setValue(door1, DOOR);
+            setValue(door2, DOOR);
+            cornerConnect(door1, mid, dir1, dirMid);
+            cornerConnect(door2, mid, dir2, (dirMid + 2) % 4);
             return;
         }
 
@@ -455,6 +493,39 @@ public class Map {
         door2.moveInDir(dir2);
         connectPoints(door1, door2);
         setValue(door2, OPEN);
+    }
+
+    private void cornerConnect(Coord pos1, Coord pos2, int dir1, int dir2) {
+        if (pos1.x != pos2.x && pos1.y != pos2.y) { // Different x and y axes (normal)
+            while (pos1.x != pos2.x && pos1.y != pos2.y && validPoint(pos1)) {
+                pos1.moveInDir(dir1);
+                if (validPoint(pos1, DOOR)) {
+                    setValue(pos1, OPEN);
+                }
+            }
+            while ((pos1.x != pos2.x || pos1.y != pos2.y) && validPoint(pos2)) {
+                pos2.moveInDir(dir2);
+                if (validPoint(pos2, DOOR)) {
+                    setValue(pos2, OPEN);
+                }
+            }
+        } else { // Same x axis and dir1 is y, or same y axis and dir1 is x
+            if ((pos1.x == pos2.x && (dir1 == 2 || dir1 == 0)) || (pos1.y == pos2.y && (dir1 == 1 || dir1 == 3))) {
+                while ((pos1.x != pos2.x || pos1.y != pos2.y) && validPoint(pos1)) {
+                    pos1.moveInDir(dir1);
+                    if (validPoint(pos1, DOOR)) {
+                        setValue(pos1, OPEN);
+                    }
+                }
+            } else { // Other (move door 2 first)
+                while ((pos1.x != pos2.x || pos1.y != pos2.y) && validPoint(pos2)) {
+                    pos2.moveInDir(dir2);
+                    if (validPoint(pos2, DOOR)) {
+                        setValue(pos2, OPEN);
+                    }
+                }
+            }
+        }
     }
 
     public void connectPoints(Coord pos1, Coord pos2) {

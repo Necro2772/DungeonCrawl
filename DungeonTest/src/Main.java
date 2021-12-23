@@ -3,9 +3,11 @@ public class Main {
 
         Map map = new Map(50, 50);
 
-        map.divideMap();
-        map.randConnectRooms();
-        //map.genMaze();
-        map.displayMap();
+        do {
+            map = new Map(50, 50);
+            map.divideMap();
+            map.randConnectRooms();
+            map.displayMap();
+        } while (map.test == 1);
     }
 }
