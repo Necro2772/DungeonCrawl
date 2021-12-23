@@ -1,6 +1,8 @@
 body {
     position: relative;
+    background-color: #1e1e1e;
     text-align: center;
+    color: #f6f6f6;
 }
 
 #map-outer {
@@ -21,7 +23,7 @@ body {
 }
 
 .row:first-child {
-    border-top: 1px solid #5f5cff;
+    border-top: 1px solid #43b0d7;
 }
 
 .cell {
@@ -35,13 +37,13 @@ body {
 }
 
 .wall {
-    background-color: black;
+    background-color: #252526;
 }
 
 .open {
-    background-color: white;
+    background-color: #f6f6f6;
 }
 
 .door {
-    background-color: grey;
+    background-color: darkgrey;
 }

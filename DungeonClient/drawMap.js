@@ -1,5 +1,5 @@
 function generateMap() {
-    const test = 'http://localhost:3000/testMap.json'
+    const test = 'http://localhost:3001/testMap.json'
 
     fetch(test)
     .then(data => data.json())
