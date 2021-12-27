@@ -1,5 +1,6 @@
 const canvas = document.getElementById("map-canvas");
 const context = canvas.getContext("2d");
+const grid = 20;
 
 function generateMap() {
     const test = 'http://localhost:3001/testMap.json'
@@ -10,50 +11,43 @@ function generateMap() {
 }
 
 function drawMap(m) {
+    drawGrid(m);
+
+    for (let x = 0; x < m[0].length; x++) {
+        for (let y = 0; y < m.length; y++) {
+            context.beginPath();
+            context.rect(grid * (x + 1), grid * (y + 1), grid, grid);
+            if (m[y][x] === 0) {
+                context.fillStyle = 'black';
+            }
+            else if (m[y][x] === 3) {
+                context.fillStyle = 'yellow';
+            }
+            else {
+                context.fillStyle = 'purple';
+            }
+            context.fill();
+            context.stroke();
+        }
+    }
+}
+
+function drawGrid(m) {
     canvas.width = (m[0].length + 2) * 20;
     canvas.height = (m.length + 2) * 20;
 
-    let size = 20;
-    let padding = size;
-
     context.beginPath();
 
-    for (let x = padding; x <= canvas.width - padding; x += size) {
-        context.moveTo(x, padding);
-        context.lineTo(x, canvas.height - padding);
+    for (let x = grid; x <= canvas.width - grid; x += grid) {
+        context.moveTo(x, grid);
+        context.lineTo(x, canvas.height - grid);
     }
 
-    for (let y = padding; y <= canvas.height - padding; y += size) {
-        context.moveTo(padding, y);
-        context.lineTo(canvas.width - padding, y);
+    for (let y = grid; y <= canvas.height - grid; y += grid) {
+        context.moveTo(grid, y);
+        context.lineTo(canvas.width - grid, y);
     }
 
     context.strokeStyle = "#253652";
     context.stroke();
 }
-
-// function drawMap(m) {
-//     let map = '<div id="map">';
-
-//     for (let i = 0; i < m.length; i++) {
-//         map = map.concat('<div class="row">');
-
-//         for (let j = 0; j < m[0].length; j++) {
-//             if (m[i][j] === 0) {
-//                 map = map.concat('<div class="cell wall"></div>');
-//             }
-//             else if (m[i][j] === 3) {
-//                 map = map.concat('<div class="cell door"></div>');
-//             }
-//             else {
-//                 map = map.concat('<div class="cell open"></div>');
-//             }
-//         }
-
-//         map = map.concat('</div>');
-//     }
-
-//     map = map.concat('</div>');
-
-//     document.getElementById("map-outer").innerHTML = map;
-// }
