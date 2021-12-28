@@ -4,9 +4,3 @@ body {
 	text-align: center;
 	color: #f6f6f6;
 }
-
-#map-outer {
-	display: flex;
-	margin: 30px;
-	justify-content: center;
-}

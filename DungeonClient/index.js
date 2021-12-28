@@ -1,11 +1,14 @@
 const canvas = document.getElementById("map-canvas");
 const context = canvas.getContext("2d");
-const grid = 20;
+const grid = 15;
+
+const root = 'http://192.168.0.41:8080';
 
 function generateMap() {
-	const test = 'http://localhost:3001/testMap.json'
+	// const test = 'http://localhost:3001/testMap.json';
+	const url = `${root}/genMap`;
 
-	fetch(test)
+	fetch(url)
 	.then(data => data.json())
 	.then(res => drawMap(res.map));
 }
@@ -33,8 +36,8 @@ function drawMap(m) {
 }
 
 function drawGrid(m) {
-	canvas.width = (m[0].length + 2) * 20;
-	canvas.height = (m.length + 2) * 20;
+	canvas.width = (m[0].length + 2) * 15;
+	canvas.height = (m.length + 2) * 15;
 
 	context.beginPath();
 
