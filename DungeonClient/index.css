@@ -1,12 +1,12 @@
 body {
-    position: relative;
-    background-color: #1e1e1e;
-    text-align: center;
-    color: #f6f6f6;
+	position: relative;
+	background-color: #1e1e1e;
+	text-align: center;
+	color: #f6f6f6;
 }
 
 #map-outer {
-    display: flex;
-    margin: 30px;
-    justify-content: center;
+	display: flex;
+	margin: 30px;
+	justify-content: center;
 }

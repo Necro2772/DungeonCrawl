@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta name="viewport" content="width=device-width, initial-" /> -->
+		<script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
 
-        <link rel=stylesheet href="index.css" />
-        
-        <title>Dungeon Crawl</title>
-    </head>
-    <body>
-        <h1>Dungeon Crawler</h1>
+		<link rel=stylesheet href="index.css" />
+		
+		<title>Dungeon Crawl</title>
+	</head>
+	<body>
+		<h1>Dungeon Crawler</h1>
 
-        <main>
-            <canvas id="map-canvas">Browser does not support canvas.</canvas>
-        </main>
+		<main>
+			<canvas id="map-canvas">Browser does not support canvas.</canvas>
+		</main>
 
-        <button type="button" onclick="generateMap()" >Generate New Map</button>
+		<button type="button" onclick="generateMap()" >Generate New Map</button>
 
-        <script type="text/javascript" src="index.js"></script>
-        <script>
-            window.onload = generateMap;
-        </script>
-    </body>
+		<script type="text/javascript" src="index.js"></script>
+		<script>
+			window.onload = generateMap;
+		</script>
+	</body>
 </html>
