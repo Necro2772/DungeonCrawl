@@ -1123,4 +1123,20 @@ public class Map {
         }
         System.out.println();
     }
+
+    public String toString() {
+        StringBuilder output = new StringBuilder();
+        for (int[] i : map){
+            for (int j : i){
+                if (key.containsKey(j)) {
+                    output.append(key.get(j));
+                } else {
+                    output.append(j);
+                }
+            }
+            output.append("\n");
+        }
+        output.append("\n");
+        return new String(output);
+    }
 }
