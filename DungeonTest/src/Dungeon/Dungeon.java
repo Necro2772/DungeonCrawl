@@ -1,7 +1,9 @@
+package Dungeon;
+
 import org.json.simple.JSONObject;
 
 public class Dungeon {
-    public static Map[] maps;
+    public static Map[] maps = new Map[10];
     public static int currentFloor = 1;
 
     public static void loadMap(int floor) {

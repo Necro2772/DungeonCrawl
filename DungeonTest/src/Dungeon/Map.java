@@ -1,3 +1,5 @@
+package Dungeon;
+
 import java.util.Hashtable;
 import java.util.LinkedList;
 

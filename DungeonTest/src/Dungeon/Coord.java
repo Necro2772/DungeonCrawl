@@ -1,3 +1,5 @@
+package Dungeon;
+
 public class Coord {
     int x;
     int y;
