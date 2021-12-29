@@ -10,11 +10,12 @@ public class Dungeon {
         maps[floor] = new Map(50, 50);
         maps[floor].divideMap();
         maps[floor].randConnectRooms();
+        maps[floor].addEntity(Map.PLAYER);
     }
 
-    public static JSONObject getCurrentMap() {
-        JSONObject obj = new JSONObject();
-        obj.put("map", maps[currentFloor - 1].map);
-        return obj;
+    public static int[][] getCurrentMap() {
+//        JSONObject obj = new JSONObject();
+//        obj.put("map", maps[currentFloor - 1].map);
+        return maps[currentFloor - 1].map;
     }
 }

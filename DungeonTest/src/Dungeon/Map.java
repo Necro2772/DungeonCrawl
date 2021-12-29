@@ -6,6 +6,7 @@ import java.util.LinkedList;
 public class Map {
     int[][] map;
     LinkedList<Room> rooms;
+    LinkedList<Coord> entities;
     LinkedList<Integer> pathTemp;
     Hashtable<Integer, Character> key;
 
@@ -13,6 +14,7 @@ public class Map {
     private static final int DOOR = 3;
     private static final int WALL = 0;
     private static final int TEST = 1;
+    public static final int PLAYER = 4;
 
     public int test = 0;
 
@@ -105,6 +107,7 @@ public class Map {
         map = new int[height][width];
         rooms = new LinkedList<>();
         key = new Hashtable<>();
+        entities = new LinkedList<>();
         key.put(0, '#');
         key.put(1, '!');
         key.put(2, ' ');
@@ -115,6 +118,48 @@ public class Map {
         for (int i = 0; i < map2.length; i++) {
             System.arraycopy(map2[i], 0, map[i], 0, map[0].length);
         }
+    }
+
+    public void addEntity(int type) {
+        LinkedList<Coord> tiles = getTiles(OPEN);
+        int index = (int) (Math.random() * tiles.size());
+        setValue(tiles.get(index), type);
+    }
+
+    public LinkedList<Coord> getTiles(int... valid) {
+        LinkedList<Coord> tiles = new LinkedList<Coord>();
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[0].length; x++) {
+                boolean isValid = false;
+                for (int i : valid) {
+                    if (i == map[y][x]) {
+                        isValid = true;
+                    }
+                    if (isValid) {
+                        tiles.add(new Coord(x, y));
+                    }
+                }
+            }
+        }
+        return tiles;
+    }
+
+    public LinkedList<Coord> getSpaces(int... invalid) {
+        LinkedList<Coord> spaces = new LinkedList<Coord>();
+        for (int y = 0; y < map.length; y++) {
+            for (int x = 0; x < map[0].length; x++) {
+                boolean isValid = true;
+                for (int i : invalid) {
+                    if (i == map[y][x]) {
+                        isValid = false;
+                    }
+                    if (isValid) {
+                        spaces.add(new Coord(x, y));
+                    }
+                }
+            }
+        }
+        return spaces;
     }
 
     public void divideMap() {

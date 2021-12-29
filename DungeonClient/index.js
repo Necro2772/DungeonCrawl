@@ -45,7 +45,7 @@ function generateMap() {
 	fetch(url)
 	.then(data => data.json())
 	.then(res => {
-		map = res.map;
+		map = res;
 		drawMap(map, grid)
 	});
 }
