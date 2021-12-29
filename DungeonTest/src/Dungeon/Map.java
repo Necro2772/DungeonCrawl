@@ -10,11 +10,13 @@ public class Map {
     LinkedList<Integer> pathTemp;
     Hashtable<Integer, Character> key;
 
-    private static final int OPEN = 2;
-    private static final int DOOR = 3;
-    private static final int WALL = 0;
-    private static final int TEST = 1;
-    public static final int PLAYER = 4;
+    public static final int WALL = 0;
+    public static final int TEST = 1;
+    public static final int ROOM = 2;
+    public static final int CORRIDOR = 3;
+    public static final int DOOR = 4;
+    public static final int PLAYER = 5;
+    public static final int STAIR = 6;
 
     public int test = 0;
 
@@ -121,7 +123,7 @@ public class Map {
     }
 
     public void addEntity(int type) {
-        LinkedList<Coord> tiles = getTiles(OPEN);
+        LinkedList<Coord> tiles = getTiles(ROOM);
         int index = (int) (Math.random() * tiles.size());
         setValue(tiles.get(index), type);
     }
@@ -212,7 +214,7 @@ public class Map {
                 if (x == start.x || x == start.x + width || y == start.y || y == start.y + height ) {
                     map[y][x] = 0;
                 } else {
-                    map[y][x] = OPEN;
+                    map[y][x] = ROOM;
                 }
             }
         }
@@ -340,28 +342,28 @@ public class Map {
             door1 = spaces1.get(index1);
             if (room1.disOnSide(dir1) + room2.disOnSide(dir2) < 3) {
                 door1.moveInDir(dir1);
-                if (getValue(door1) == OPEN) {
+                if (getValue(door1) == ROOM) {
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
                     return;
-                } else if (getValue(door1.itemInDir((dir1 + 1) % 4)) == OPEN || getValue(door1.itemInDir((dir1 + 3) % 4)) == OPEN) {
+                } else if (getValue(door1.itemInDir((dir1 + 1) % 4)) == ROOM || getValue(door1.itemInDir((dir1 + 3) % 4)) == ROOM) {
                     setValue(door1, DOOR);
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
                     return;
                 }
                 door1.moveInDir(dir1);
-                if (getValue(door1) == OPEN) {
+                if (getValue(door1) == ROOM) {
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
                     return;
-                } else if (getValue(door1.itemInDir((dir1 + 1) % 4)) == OPEN || getValue(door1.itemInDir((dir1 + 3) % 4)) == OPEN) {
+                } else if (getValue(door1.itemInDir((dir1 + 1) % 4)) == ROOM || getValue(door1.itemInDir((dir1 + 3) % 4)) == ROOM) {
                     displayMap();
                     setValue(door1, DOOR);
                     door1.moveInDir(dir2);
-                    setValue(door1, OPEN);
+                    setValue(door1, CORRIDOR);
                     door1.moveInDir(dir2);
                     setValue(door1, DOOR);
                     return;
@@ -539,7 +541,7 @@ public class Map {
         door1.moveInDir(dir1);
         door2.moveInDir(dir2);
         connectPoints(door1, door2);
-        setValue(door2, OPEN);
+        setValue(door2, CORRIDOR);
     }
 
     private void cornerConnect(Coord pos1, Coord pos2, int dir1, int dir2) {
@@ -547,13 +549,13 @@ public class Map {
             while (pos1.x != pos2.x && pos1.y != pos2.y && validPoint(pos1)) {
                 pos1.moveInDir(dir1);
                 if (validPoint(pos1, DOOR)) {
-                    setValue(pos1, OPEN);
+                    setValue(pos1, CORRIDOR);
                 }
             }
             while ((pos1.x != pos2.x || pos1.y != pos2.y) && validPoint(pos2)) {
                 pos2.moveInDir(dir2);
                 if (validPoint(pos2, DOOR)) {
-                    setValue(pos2, OPEN);
+                    setValue(pos2, CORRIDOR);
                 }
             }
         } else { // Same x axis and dir1 is y, or same y axis and dir1 is x
@@ -561,14 +563,14 @@ public class Map {
                 while ((pos1.x != pos2.x || pos1.y != pos2.y) && validPoint(pos1)) {
                     pos1.moveInDir(dir1);
                     if (validPoint(pos1, DOOR)) {
-                        setValue(pos1, OPEN);
+                        setValue(pos1, CORRIDOR);
                     }
                 }
             } else { // Other (move door 2 first)
                 while ((pos1.x != pos2.x || pos1.y != pos2.y) && validPoint(pos2)) {
                     pos2.moveInDir(dir2);
                     if (validPoint(pos2, DOOR)) {
-                        setValue(pos2, OPEN);
+                        setValue(pos2, CORRIDOR);
                     }
                 }
             }
@@ -1083,7 +1085,7 @@ public class Map {
     public void drawLine(LinkedList<Integer> path, Coord pos) {
         Coord position = new Coord(pos);
         while (!path.isEmpty()) {
-            setValue(position, OPEN);
+            setValue(position, CORRIDOR);
             int index = (int)(path.size() * Math.random());
             switch (path.get(index)) {
                 case 0:
