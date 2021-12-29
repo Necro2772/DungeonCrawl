@@ -6,7 +6,8 @@ import java.util.LinkedList;
 public class Map {
     int[][] map;
     LinkedList<Room> rooms;
-    LinkedList<Coord> entities;
+    LinkedList<Entity> entities;
+    Coord player = new Coord(0, 0);
     LinkedList<Integer> pathTemp;
     Hashtable<Integer, Character> key;
 
@@ -16,7 +17,8 @@ public class Map {
     public static final int CORRIDOR = 3;
     public static final int DOOR = 4;
     public static final int PLAYER = 5;
-    public static final int STAIR = 6;
+    public static final int UPSTAIR = 6;
+    public static final int DOWNSTAIR = 7;
 
     public int test = 0;
 
@@ -116,16 +118,41 @@ public class Map {
         key.put(3, '|');
     }
 
+    public int[][] getMap() {
+        int[][] finalMap = new int[map.length][map[0].length];
+        for (int y = 0; y < map.length; y++) {
+            System.arraycopy(map[y], 0, finalMap[y], 0, map[0].length);
+        }
+        for (Entity item : entities) {
+            finalMap[item.loc.y][item.loc.x] = item.type;
+        }
+        setValue(player, PLAYER);
+        return finalMap;
+    }
+
     public void setMap(int[][] map2) {
         for (int i = 0; i < map2.length; i++) {
             System.arraycopy(map2[i], 0, map[i], 0, map[0].length);
         }
     }
 
-    public void addEntity(int type) {
+    public void createBasicMap() {
+        divideMap();
+        randConnectRooms();
+    }
+
+    public Coord addEntity(int type) {
         LinkedList<Coord> tiles = getTiles(ROOM);
         int index = (int) (Math.random() * tiles.size());
-        setValue(tiles.get(index), type);
+        entities.add(new Entity(tiles.get(index), type));
+        return tiles.get(index);
+    }
+
+    public Coord randomizePlayer() {
+        LinkedList<Coord> tiles = getTiles(ROOM);
+        int index = (int) (Math.random() * tiles.size());
+        player = tiles.get(index);
+        return tiles.get(index);
     }
 
     public LinkedList<Coord> getTiles(int... valid) {
@@ -298,8 +325,6 @@ public class Map {
     }
 
     public void connectRooms(Room room1, Room room2) {
-        // TODO: Remove iterative display
-        // TODO: check location of doors compared to existing doors to avoid pathing conflicts
 //        int temp1 = getValue(room1.inner.start);
 //        int temp2 = getValue(room2.inner.start);
 //        setValue(room1.inner.start, TEST);
@@ -1152,10 +1177,6 @@ public class Map {
 //            directions.remove(index);
 //        }
 //    }
-
-    public int[][] getMap() {
-        return map;
-    }
 
     public void displayMap() {
         for (int[] i : map){

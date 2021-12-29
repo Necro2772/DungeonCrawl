@@ -14,9 +14,9 @@ public class WebController {
         return Dungeon.getCurrentMap();
     }
 
-    @GetMapping("/genMap")
+    @GetMapping("/genDungeon")
     public int[][] genMap() {
-        Dungeon.loadMap(0);
+        Dungeon.loadDungeon(5);
         return Dungeon.getCurrentMap();
     }
 }

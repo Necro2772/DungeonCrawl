@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Main {
 
     public static void main(String[] args) {
-        Dungeon.loadMap(0);
+        Dungeon.loadDungeon(5);
         SpringApplication.run(Main.class, args);
     }
 }
