@@ -1,5 +1,6 @@
 body {
 	position: relative;
+	overflow: hidden;
 	background-color: #1e1e1e;
 	text-align: center;
 	color: #f6f6f6;

@@ -1,4 +1,5 @@
-const root = 'http://localhost:8080/';
+// const root = 'http://localhost:8080'; // pull from local server
+const root = 'http://192.168.0.41:8080'; // pull from server on Michael's laptop
 
 // FOR DRAWING FULL MAP
 const mapDisplay = document.getElementById("map-display");
@@ -7,8 +8,8 @@ const grid = 15;
 
 let map;
 
-function generateMap() {
-	const url = `${root}/genMap`;
+function generateDungeon() {
+	const url = `${root}/genDungeon`;
 
 	fetch(url)
 	.then(data => data.json())
@@ -32,11 +33,11 @@ function drawMap(m, g) {
 			mapContext.rect(g * (x + 1), g * (y + 1), g, g);
 			switch (m[y][x]) {
 				case 2: 	// ROOM
-					mapContext.fillStyle = 'purple';
+					mapContext.fillStyle = 'darkmagenta';
 					break;
 				
 				case 3: 	// CORRIDOR
-					mapContext.fillStyle = 'orange';
+					mapContext.fillStyle = 'darkorange';
 					break;
 				
 				case 4: 	// DOOR
@@ -47,18 +48,73 @@ function drawMap(m, g) {
 					mapContext.fillStyle = 'red';
 					break;
 				
-				case 6:		// STAIRS
-					mapContext.fillStyle = 'grey';
+				case 6:		// UPSTAIR
+					mapContext.fillStyle = 'lightgrey';
+					break;
+				
+				case 7:		// DOWNSTAIR
+					mapContext.fillStyle = 'darkgrey';
 					break;
 				
 				default: 	// WALL
 					mapContext.fillStyle = 'black';
 			}
-			
+
 			mapContext.fill();
 			mapContext.stroke();
 		}
 	}
+}
+
+window.addEventListener('keydown', (e => {
+	console.log(e.key);
+
+	let url = '';
+	let data = '';
+	let isValid = true;
+	
+	switch (e.key) {
+		case 'ArrowUp':
+		case 'ArrowLeft':
+		case 'ArrowRight':
+		case 'ArrowDown':
+			url = 'move';
+			data = e.key.substring(5, e.key.length);
+			break;
+		
+		case 'Enter':
+			url = 'stairs';
+			data = e.key;
+			break;
+		
+		default:
+			isValid = false;
+			break;
+	}
+
+	if (isValid) {
+		sendKeyPress(`${root}/${url}`, data);
+	}
+}));
+
+function sendKeyPress(url, data) {
+	fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: data
+	})
+	.then(res => res.json())
+	.then(m => {
+		console.log(m);
+
+		map = m;
+		drawMap(map, grid);
+	})
+	.catch((e) => {
+		console.error('Error: ', e);
+	});
 }
 
 // function drawGrid(m) {
