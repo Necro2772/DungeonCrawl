@@ -385,7 +385,7 @@ public class Map {
                     setValue(door1, DOOR);
                     return;
                 } else if (getValue(door1.itemInDir((dir1 + 1) % 4)) == ROOM || getValue(door1.itemInDir((dir1 + 3) % 4)) == ROOM) {
-                    displayMap();
+                    //displayMap();
                     setValue(door1, DOOR);
                     door1.moveInDir(dir2);
                     setValue(door1, CORRIDOR);
@@ -516,13 +516,13 @@ public class Map {
             assert spacesTemp != null;
             assert spaces1 != null;
             assert spaces2 != null;
-            System.out.println(spacesMid + " " + spacesTemp);
+            //System.out.println(spacesMid + " " + spacesTemp);
             spacesMid.removeIf(space -> !spacesTemp.contains(space.itemInDir((dirMid + 2) % 4)));
             if (spacesMid.isEmpty()) {
                 System.err.println("Cannot find spaces for joint connection!");
             }
             mid = spacesMid.get((int)(Math.random() * spacesMid.size()));
-            System.out.println(mid);
+            //System.out.println(mid);
             door1 = spaces1.get((int)(Math.random() * spaces1.size()));
             door2 = spaces2.get((int)(Math.random() * spaces2.size()));
 
@@ -1010,7 +1010,7 @@ public class Map {
                 break;
         }
         if (!coords.contains(temp)) {
-            System.out.println("ERROR! findPathR is broken apparently");
+            System.err.println("ERROR! findPathR is broken apparently");
             return;
         }
         int index = coords.indexOf(temp);

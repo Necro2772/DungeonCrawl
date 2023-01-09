@@ -1,13 +1,14 @@
 package Dungeon;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+//import org.springframework.boot.SpringApplication;
+//import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class Main {
 
     public static void main(String[] args) {
         Dungeon.loadDungeon(5);
-        SpringApplication.run(Main.class, args);
+        Dungeon.maps[0].displayMap();
+        //SpringApplication.run(Main.class, args);
     }
 }
